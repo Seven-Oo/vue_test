@@ -5,8 +5,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    selectingShow: false,
-    selectedShow: false,
     classStudentLists: [],
     groupStudentLists: [],
     studentLists: []
@@ -20,9 +18,6 @@ export default new Vuex.Store({
     },
     save_studentLists (state, data) {
       state.studentLists = data
-    },
-    changeSelectingShow (state) {
-      state.selectingShow = !state.selectingShow
     }
   },
   getters: {

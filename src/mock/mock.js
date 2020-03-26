@@ -109,10 +109,36 @@ for (let i = 0; i < 10; i++) {
   studentLists.push(post)
 }
 
+//  class
+let classLists = []
+
+for (let i = 0; i < 4; i++) {
+  let post = {
+    name: Random.csentence(5, 7),
+    data: classStudentLists,
+    selectingShow: false
+  }
+
+  classLists.push(post)
+}
+
+//  group
+let groupLists = []
+
+for (let i = 0; i < 4; i++) {
+  let post = {
+    name: Random.csentence(5, 7),
+    data: groupStudentLists,
+    selectingShow: false
+  }
+
+  groupLists.push(post)
+}
+
 mock(`${domain}/posts/tableData`, 'post', {// 这里的url地址其实可以换成一个字段，比如msg,下边请求时候对应就可以
   tableData,
   selectedList,
-  classStudentLists,
-  groupStudentLists,
-  studentLists
+  studentLists,
+  classLists,
+  groupLists
 })

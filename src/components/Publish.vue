@@ -1,10 +1,16 @@
 <template>
   <div>
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+    <el-form :inline="true"
+             :model="formInline"
+             class="demo-form-inline">
       <el-form-item label="参与测试对象：">
-        <el-select v-model="formInline.student" placeholder="请选择">
-          <el-option label="全部学生" value=""></el-option>
-          <el-option label="指定学生" value=""></el-option>
+        <el-select v-model="value"
+                   placeholder="请选择">
+          <el-option v-for="item in options"
+                     :key="item.value"
+                     :label="item.label"
+                     :value="item.value">
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -19,6 +25,14 @@ export default {
   name: 'Publish',
   data () {
     return {
+      options: [{
+        value: 'all',
+        label: '全部学生'
+      }, {
+        value: 'select',
+        label: '指定学生'
+      }],
+      value: '',
       formInline: {
         student: ''
       }

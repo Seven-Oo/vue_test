@@ -1,52 +1,82 @@
 <template>
-  <div>
+  <div style="margin: 0 auto;">
     <div class="clearfix box-wrapper">
-      <el-card shadow='never' class="box-card left" style="margin-right: 15px;">
-        <div slot="header" class="clearfix boxcard-title">
+      <el-card shadow="never"
+               class="box-card left"
+               style="margin-right: 15px;">
+        <div slot="header"
+             class="clearfix boxcard-title">
           <h3>可选择参与人：</h3>
         </div>
         <el-input class="selectingInput"
-          placeholder="输入学生姓名或学号"
-          v-model="selectingInput"
-          clearable @focus="changeSelectingState" @blur="changeSelectingState" @input="searchSelectingList($event)">
+                  placeholder="输入学生姓名或学号"
+                  v-model="selectingInput"
+                  clearable
+                  @clear="clearSelectingSearch"
+                  @focus="changeInputState"
+                  @input="searchSelectingList($event)">
+
         </el-input>
+        <searchlist v-show="selectingSearchResult"
+                    v-bind:value="selectingInput"
+                    @addSelectingSearch="addSelectingSearch($event)"></searchlist>
 
-        <searchlist v-if="selectingSearchResult"></searchlist>
-
-        <div v-if="selectingStudentsList">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane label="按班级添加" name="first">
-              <div class="classWrapper">
+        <div v-show="selectingStudentsList">
+          <el-tabs v-model="activeName">
+            <el-tab-pane label="按班级添加"
+                         name="first">
+              <div class="classWrapper"
+                   v-for="(item1, index1) in classLists"
+                   :key="index1">
                 <div class="clearfix content-title">
-                  <div class="left" @click="changeSelectingShow">
-                    <i v-if="selectingShow" class="el-icon-caret-top content-title-topico"></i>
-                    <i v-if="!selectingShow" class="el-icon-caret-bottom content-title-bottomico"></i>
-                    <span>19英01班</span>
+                  <div class="left"
+                       @click="changeSelectingShow(index1)">
+                    <i v-show="item1.selectingShow"
+                       class="el-icon-caret-top content-title-topico"></i>
+                    <i v-show="!item1.selectingShow"
+                       class="el-icon-caret-bottom content-title-bottomico"></i>
+                    <span>{{item1.name}}</span>
                   </div>
-                  <i class="el-icon-circle-plus-outline right content-title-addico"></i>
+                  <i class="el-icon-circle-plus-outline right content-title-addico"
+                     @click="addFromClass(index1)"></i>
                 </div>
-                <div v-for="(item, index) in this.$store.state.classStudentLists" :key="index" class="text items">
-                  <div  v-if="selectingShow" class="item">
-                    <span class="item-name">{{item.name}}</span>
-                    <span>{{item.nickName}}</span>
+                <div v-for="(item2, index2) in item1.data"
+                     :key="index2"
+                     class="text items">
+                  <div v-show="item1.selectingShow"
+                       class="item"
+                       @click="addself(item2)">
+                    <span class="item-name">{{item2.name}}</span>
+                    <span>{{item2.nickName}}</span>
                   </div>
                 </div>
               </div>
             </el-tab-pane>
-            <el-tab-pane label="按小组添加" name="second">
-              <div>
+            <el-tab-pane label="按小组添加"
+                         name="second">
+              <div class="groupWrapper"
+                   v-for="(groupItem, groupIndex) in groupLists"
+                   :key="groupIndex">
                 <div class="clearfix content-title">
-                  <div class="left" @click="changeSelectedShow">
-                    <i v-if="selectedShow" class="el-icon-caret-top content-title-topico"></i>
-                    <i v-if="!selectedShow" class="el-icon-caret-bottom content-title-bottomico"></i>
+                  <div class="left"
+                       @click="changeSelectedShow(groupIndex)">
+                    <i v-show="groupItem.selectingShow"
+                       class="el-icon-caret-top content-title-topico"></i>
+                    <i v-show="!groupItem.selectingShow"
+                       class="el-icon-caret-bottom content-title-bottomico"></i>
                     <span>英语小组</span>
                   </div>
-                  <i class="el-icon-circle-plus-outline right content-title-addico"></i>
+                  <i class="el-icon-circle-plus-outline right content-title-addico"
+                     @click="addFromGroup(groupIndex)"></i>
                 </div>
-                <div v-for="(item, index) in this.$store.state.groupStudentLists" :key="index" class="text items">
-                  <div  v-if="selectedShow" class="item">
-                    <span class="item-name">{{item.name}}</span>
-                    <span>{{item.nickName}}</span>
+                <div v-for="(stuItem, stuIndex) in groupItem.data"
+                     :key="stuIndex"
+                     class="text items">
+                  <div v-show="groupItem.selectingShow"
+                       class="item"
+                       @click="addself(stuItem)">
+                    <span class="item-name">{{stuItem.name}}</span>
+                    <span>{{stuItem.nickName}}</span>
                   </div>
                 </div>
               </div>
@@ -55,40 +85,64 @@
         </div>
       </el-card>
 
-      <el-divider direction="vertical" class="left"></el-divider>
+      <el-divider direction="vertical"
+                  class="left"></el-divider>
 
-      <el-card shadow='never' class="box-card left" style="margin-left: 15px;">
-        <div slot="header" class="clearfix boxcard-title">
-          <h3>已选择参与人：<span class="pointText">2</span></h3>
-          <div class="right" v-if="showSelectedSearch">
-            <i class="el-icon-search" @click="changeSelectedSearch"></i>
-            <i class="el-icon-delete"></i>
+      <el-card shadow="never"
+               class="box-card left"
+               style="margin-left: 15px;">
+        <div slot="header"
+             class="clearfix boxcard-title">
+          <h3>
+            已选择参与人：
+            <span class="pointText">{{selectedList.length}}</span>
+          </h3>
+          <div class="right"
+               v-show="showSelectedSearch">
+            <i class="el-icon-search"
+               @click="changeSelectedSearch"></i>
+            <i class="el-icon-delete"
+               @click="selectedListDelete"></i>
           </div>
-          <div class="right" v-if="!showSelectedSearch">
-            <h3 class="exitSearch" @click="changeSelectedSearch">退出检索</h3>
+          <div class="right"
+               v-show="!showSelectedSearch">
+            <h3 class="exitSearch"
+                @click="changeSelectedSearch">退出检索</h3>
           </div>
         </div>
-        <el-input class="selectingInput" v-if="!showSelectedSearch"
-          placeholder="输入学生姓名或学号"
-          v-model="selectedInput"
-          clearable @input="searchSelectedList($event)">
-        </el-input>
-
-        <searchlist v-if="selectedSearchResult"></searchlist>
+        <el-input class="selectingInput"
+                  v-show="!showSelectedSearch"
+                  placeholder="输入学生姓名或学号"
+                  v-model="selectedInput"
+                  clearable
+                  @clear="clearSelectedSearch"
+                  @input="searchSelectedList($event)"></el-input>
 
         <div class="selectedList"
-          v-for="(item,index) in selectedList"
-          :key="index">
-          <div v-if="selectedStudentsList">
+             v-show="selectedSearchResult"
+             v-for="(searchItem,searchIndex) in selectedSearchResultList"
+             :key="searchIndex">
+          <span class="selected-name">{{searchItem.name}}</span>
+          <span class="selected-nickName">{{searchItem.nickName}}</span>
+          <i class="el-icon-delete"
+             @click="searchstuDelete(searchIndex,searchItem)"></i>
+        </div>
+
+        <div class="selectedList"
+             v-for="(item,index) in selectedList"
+             :key="index">
+          <div v-show="selectedStudentsList">
             <span class="selected-name">{{item.name}}</span>
             <span class="selected-nickName">{{item.nickName}}</span>
-            <i class="el-icon-delete"></i>
+            <i class="el-icon-delete"
+               @click="stuDelete(index)"></i>
           </div>
         </div>
       </el-card>
     </div>
     <el-row class="handleBtn">
-      <el-button type="primary">提交</el-button>
+      <el-button type="primary"
+                 @click="submit">提交</el-button>
       <el-button type="danger">取消</el-button>
     </el-row>
   </div>
@@ -100,74 +154,142 @@ export default {
   name: 'Addstudent',
   data () {
     return {
-      selectingInput: '',
-      selectedInput: '',
-      activeName: 'first',
-      selectedList: [],
-      activeNames: ['1'],
-      showSelectedSearch: true,
-      selectingStudentsList: true,
-      selectingSearchResult: false,
-      selectedStudentsList: true,
-      selectedSearchResult: false,
-      selectingShow: this.$store.state.selectingShow,
-      selectedShow: this.$store.state.selectedShow
+      selectingInput: '', // 左侧输入框的值
+      selectedInput: '', // 右侧输入框的值
+      activeName: 'first', // 班级和小组切换控制
+      selectedList: [], // 已选择的学生列表
+      showSelectedSearch: true, // 右侧搜索框是否显示
+      selectingStudentsList: true, // 左侧班级和小组是否显示
+      selectingSearchResult: false, // 左侧搜索结果是否显示
+      selectedStudentsList: true, // 右侧选中列表是否显示
+      selectedSearchResult: false, // 右侧搜索结果是否显示
+      selectingShow: false, // 班级内学生列表是否显示
+      selectedShow: false, // 小组内学生列表是否显示
+      classLists: [], // 班级列表
+      groupLists: [], // 小组列表
+      inputState: false, // 左侧输入框是否获得焦点
+      selectedSearchResultList: []// 右侧搜索结果列表
     }
   },
   components: {
-    Searchlist
+    Searchlist// 左侧搜索子组件
   },
   mounted () {
+    // 加载班级和小组列表
     this.$http.post('/posts/tableData').then(res => {
-      this.selectedList = res.data.selectedList
+      this.classLists = res.data.classLists
+      this.groupLists = res.data.groupLists
     })
   },
   methods: {
-    handleClick (tab, event) {
-      console.log(tab, event)
+    // 左侧搜索子组件向父组件传值
+    addSelectingSearch (e) {
+      // e 是子组件传递过来的数据
+      this.selectedList = this.selectedList.concat([e])
+      this.selectedList = this.unique(this.selectedList)
     },
-    // 已选区域搜索框显示
+    // 数组去重
+    unique (arr) {
+      return Array.from(new Set(arr))
+    },
+    // 右侧搜索框显示
     changeSelectedSearch () {
       this.showSelectedSearch = !this.showSelectedSearch
       this.selectedStudentsList = !this.selectedStudentsList
     },
-    changeSelectingShow () {
-      // 请求班级内学生列表
-      this.$http.post('/posts/tableData').then(res => {
-        this.$store.commit('save_classStudentLists', res.data.classStudentLists)
-      })
+    // 班级图标展开与收起
+    changeSelectingShow (index) {
       // 将状态改为显示列表，图标改变
-      this.selectingShow = !this.selectingShow
+      this.classLists[index].selectingShow = !this.classLists[index]
+        .selectingShow
     },
-    changeSelectedShow () {
-      // 请求小组内学生列表
-      this.$http.post('/posts/tableData').then(res => {
-        this.$store.commit('save_groupStudentLists', res.data.groupStudentLists)
-      })
+    // 小组图标展开与收起
+    changeSelectedShow (index) {
       // 将状态改为显示列表，图标改变
-      this.selectedShow = !this.selectedShow
+      this.groupLists[index].selectingShow = !this.groupLists[index]
+        .selectingShow
     },
-    searchSelectingList (value) { // value是Input的值
-      console.log(value)
-      // this.$http.post('/posts/tableData').then(res => {
-      //   this.$store.commit('save_groupStudentLists', res.data.groupStudentLists)
-      // })
-      this.selectingSearchResult = !this.selectingSearchResult
-      if (this.selectingSearchResult === true) {
+    //  左侧搜索获取焦点操作
+    changeInputState () {
+      this.inputState = true
+    },
+    // 清空左侧输入框内容
+    clearSelectingSearch () {
+      this.selectingStudentsList = true
+      this.selectingSearchResult = !this.selectingStudentsList
+    },
+    // 左侧搜索输入
+    searchSelectingList (value) {
+      // value是Input的值
+      if (this.inputState) { // 处于获取焦点状态
         this.selectingStudentsList = false
+        this.selectingSearchResult = !this.selectingStudentsList
       } else {
         this.selectingStudentsList = true
+        this.selectingSearchResult = !this.selectingStudentsList
       }
     },
-    searchSelectedList (value) { // value是Input的值
-      console.log(value)
-      // this.$http.post('/posts/tableData').then(res => {
-      //   this.$store.commit('save_groupStudentLists', res.data.groupStudentLists)
-      // })
+    //  右侧搜索输入
+    searchSelectedList (value) {
+      // value是Input的值
+      if (value.trim()) {
+        this.selectedSearchResultList = this.selectedList.filter((val) => { // 过滤数组元素
+          return val.name.includes(value) || val.nickName.toString().includes(value) // 如果包含字符返回true
+        })
+      }
+      this.selectedStudentsList = false
+      this.selectedSearchResult = !this.selectedStudentsList
     },
-    // 左侧选择学生中的搜索框获取焦点和失去焦点的操作
-    changeSelectingState () {
-      this.selectingStudentsList = !this.selectingStudentsList
+    // 清除右侧输入框数据
+    clearSelectedSearch () {
+      this.selectedSearchResultList = []
+    },
+    //  右侧选择学生中的全部删除
+    selectedListDelete () {
+      this.selectedList = []
+    },
+    //  右侧选择学生中的删除
+    stuDelete (index) {
+      this.selectedList.splice(index, 1)
+    },
+    //  右侧查询后删除
+    searchstuDelete (index, item) {
+      this.selectedSearchResultList.splice(index, 1)
+      this.selectedList = this.selectedList.filter((val) => { // 过滤数组元素
+        return !(val.name.includes(item.name) || val.nickName.toString().includes(item.nickName.toString())) // 如果包含字符返回true
+      })
+    },
+    //  按班级添加
+    addFromClass (index) {
+      this.selectedList = this.selectedList.concat(this.classLists[index].data)
+      this.selectedList = this.unique(this.selectedList)
+    },
+    // 点击学生添加
+    addself (item) {
+      if (this.selectedList.length > 0) {
+        let inArray = false
+        for (var i = 0; i < this.selectedList.length; i++) {
+          let theItem = this.selectedList[i]
+          if (item.name === theItem.name) {
+            inArray = true
+            break
+          }
+        }
+        if (!inArray) {
+          this.selectedList = this.selectedList.concat([item])
+        }
+      } else {
+        this.selectedList = this.selectedList.concat([item])
+      }
+    },
+    // 按小组添加
+    addFromGroup (index) {
+      this.selectedList = this.selectedList.concat(this.groupLists[index].data)
+      this.selectedList = this.unique(this.selectedList)
+    },
+    // 提交
+    submit () {
+      console.log('result: ', this.selectedList)
     }
   }
 }
@@ -175,100 +297,101 @@ export default {
 
 <style scoped>
 .el-tabs__nav-wrap::after {
-    height: 0!important;
-  }
-  .el-tabs__item.is-active {
-    color: #FF5B00;
-  }
-  .box-wrapper {
-    width: 851px;
-    border: 1px solid #EBEEF5;
-  }
-  .boxcard-title h3 {
-    display: inline-block;
-  }
-  .boxcard-title i {
-    font-size: 18px;
-    width: 30px;
-    text-align: right;
-    cursor: pointer;
-  }
-  .boxcard-title .pointText {
-    color: #FF5B00;
-  }
-  .text {
-    font-size: 14px;
-  }
+  height: 0 !important;
+}
+.el-tabs__item.is-active {
+  color: #ff5b00;
+}
+.box-wrapper {
+  width: 851px;
+  border: 1px solid #ebeef5;
+}
+.boxcard-title h3 {
+  display: inline-block;
+}
+.boxcard-title i {
+  font-size: 18px;
+  width: 30px;
+  text-align: right;
+  cursor: pointer;
+}
+.boxcard-title .pointText {
+  color: #ff5b00;
+}
+.text {
+  font-size: 14px;
+}
 
-  .items {
-    margin-bottom: 18px;
-    padding-left:50px;
-    margin-bottom: 10px;
-  }
-  .item {
-    cursor: pointer;
-  }
-  .item-name {
-    display:inline-block;
-    width:80px;
-  }
+.items {
+  margin-bottom: 18px;
+  padding-left: 50px;
+  margin-bottom: 10px;
+}
+.item {
+  cursor: pointer;
+}
+.item-name {
+  display: inline-block;
+  width: 80px;
+}
 
-  .box-card {
-    width: 410px;
-    border: none;
-  }
-  .el-card__header {
-    margin: 0 20px;
-    padding: 18px 0;
-  }
-  .el-divider--vertical {
-    margin: 18px 0;
-    min-height: 50vh;
-  }
-  .selectingInput {
-    margin: 10px 0 20px 0;
-  }
-  .handleBtn {
-    width: 853px;
-    text-align: center;
-    margin: 30px 0;
-  }
-  .content-title {
-    height:30px;
-    line-height:30px;
-    font-size:14px;
-    font-weight:bold;
-    margin-bottom:10px;
-    cursor:pointer;
-  }
-  .content-title-topico, .content-title-bottomico {
-    font-size:18px;
-    line-height:28px;
-    margin-right:10px;
-    color:#606266;
-  }
-  .content-title-addico {
-    font-size:16px;
-    line-height:30px;
-    color:#606266;
-  }
-  .selectedList {
-    display:block;
-    margin-left: 30px;
-    margin-bottom:10px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .selected-name {
-    display:inline-block;
-    width:80px;
-  }
-  .selected-nickName {
-    display:inline-block;
-    width:100px;
-  }
-  .exitSearch {
-    color:#3F51B5;
-    cursor: pointer;
-  }
+.box-card {
+  width: 410px;
+  border: none;
+}
+.el-card__header {
+  margin: 0 20px;
+  padding: 18px 0;
+}
+.el-divider--vertical {
+  margin: 18px 0;
+  min-height: 50vh;
+}
+.selectingInput {
+  margin: 10px 0 20px 0;
+}
+.handleBtn {
+  width: 853px;
+  text-align: center;
+  margin: 30px 0;
+}
+.content-title {
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.content-title-topico,
+.content-title-bottomico {
+  font-size: 18px;
+  line-height: 28px;
+  margin-right: 10px;
+  color: #606266;
+}
+.content-title-addico {
+  font-size: 16px;
+  line-height: 30px;
+  color: #606266;
+}
+.selectedList {
+  display: block;
+  margin-left: 30px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.selected-name {
+  display: inline-block;
+  width: 80px;
+}
+.selected-nickName {
+  display: inline-block;
+  width: 100px;
+}
+.exitSearch {
+  color: #3f51b5;
+  cursor: pointer;
+}
 </style>
