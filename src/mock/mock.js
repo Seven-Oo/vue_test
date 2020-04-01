@@ -1,6 +1,6 @@
 import { Random as _Random, mock } from 'mockjs' // 获取mock对象
 const Random = _Random // 获取random对象，随机生成各种数据，具体请翻阅文档
-const domain = 'http://mockjs.com/api' // 定义默认域名，随便写
+const domain = 'http://localhost:8081/meol8ys' // 定义默认域名，随便写
 const code = 200 // 返回的状态码
 
 // 随机生成文章数据
