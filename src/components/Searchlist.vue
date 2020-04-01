@@ -1,12 +1,11 @@
 <template>
   <div>
-    <!-- <h4>{{value}}</h4> -->
     <div class="selectedList"
-         v-for="(item,index) in this.$store.state.studentLists"
+         v-for="(item,index) in searchResultLists"
          :key="index">
       <div @click="transmit(item)">
-        <span class="selected-name">{{item.name}}</span>
-        <span class="selected-nickName">{{item.nickName}}</span>
+        <span class="selected-name">{{item.realname}}</span>
+        <span class="selected-nickName">{{item.numb}}</span>
         <span>{{item.class}}</span>
       </div>
     </div>
@@ -18,14 +17,12 @@ export default {
   name: 'Searchlist',
   data () {
     return {
-      msg: ''
+
     }
   },
-  props: ['value'], // 得到父组件传递过来的数据
+  props: ['value', 'searchResultLists'], // 得到父组件传递过来的数据
   mounted () {
-    this.$http.post('/posts/tableData').then(res => {
-      this.$store.commit('save_studentLists', res.data.studentLists)
-    })
+
   },
   methods: {
     transmit (item) {
@@ -44,7 +41,7 @@ export default {
 }
 .selected-name {
   display: inline-block;
-  width: 80px;
+  width: 120px;
 }
 .selected-nickName {
   display: inline-block;

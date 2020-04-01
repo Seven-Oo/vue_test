@@ -1,5 +1,8 @@
 <template>
-  <div style="margin: 0 auto;">
+  <div>
+    <h3 class="subtitle">
+      添加测试发布对象
+    </h3>
     <div class="clearfix box-wrapper">
       <el-card shadow="never"
                class="box-card left"
@@ -19,6 +22,8 @@
         </el-input>
         <searchlist v-show="selectingSearchResult"
                     v-bind:value="selectingInput"
+                    v-bind:testId="testId"
+                    v-bind:searchResultLists="searchResultLists"
                     @addSelectingSearch="addSelectingSearch($event)"></searchlist>
 
         <div v-show="selectingStudentsList">
@@ -30,15 +35,16 @@
                    :key="index1">
                 <div class="clearfix content-title">
                   <div class="left"
-                       @click="changeSelectingShow(index1)">
+                       @click="changeSelectingShow(index1, item1)">
                     <i v-show="item1.selectingShow"
-                       class="el-icon-caret-top content-title-topico"></i>
+                       class="el-icon-caret-top content-title-topico">
+</template>
                     <i v-show="!item1.selectingShow"
-                       class="el-icon-caret-bottom content-title-bottomico"></i>
+                       class="el-icon-caret-bottom content-title-bottomico"></template>
                     <span>{{item1.name}}</span>
                   </div>
                   <i class="el-icon-circle-plus-outline right content-title-addico"
-                     @click="addFromClass(index1)"></i>
+                     @click="addFromClass(item1)"></i>
                 </div>
                 <div v-for="(item2, index2) in item1.data"
                      :key="index2"
@@ -46,8 +52,8 @@
                   <div v-show="item1.selectingShow"
                        class="item"
                        @click="addself(item2)">
-                    <span class="item-name">{{item2.name}}</span>
-                    <span>{{item2.nickName}}</span>
+                    <span class="item-name">{{item2.realName}}</span>
+                    <span>{{item2.numb}}</span>
                   </div>
                 </div>
               </div>
@@ -59,15 +65,15 @@
                    :key="groupIndex">
                 <div class="clearfix content-title">
                   <div class="left"
-                       @click="changeSelectedShow(groupIndex)">
+                       @click="changeSelectedShow(groupIndex,groupItem)">
                     <i v-show="groupItem.selectingShow"
                        class="el-icon-caret-top content-title-topico"></i>
                     <i v-show="!groupItem.selectingShow"
                        class="el-icon-caret-bottom content-title-bottomico"></i>
-                    <span>英语小组</span>
+                    <span>{{groupItem.name}}</span>
                   </div>
                   <i class="el-icon-circle-plus-outline right content-title-addico"
-                     @click="addFromGroup(groupIndex)"></i>
+                     @click="addFromGroup(groupItem)"></i>
                 </div>
                 <div v-for="(stuItem, stuIndex) in groupItem.data"
                      :key="stuIndex"
@@ -75,8 +81,8 @@
                   <div v-show="groupItem.selectingShow"
                        class="item"
                        @click="addself(stuItem)">
-                    <span class="item-name">{{stuItem.name}}</span>
-                    <span>{{stuItem.nickName}}</span>
+                    <span class="item-name">{{stuItem.realName}}</span>
+                    <span>{{stuItem.numb}}</span>
                   </div>
                 </div>
               </div>
@@ -85,8 +91,8 @@
         </div>
       </el-card>
 
-      <el-divider direction="vertical"
-                  class="left"></el-divider>
+      <!-- <el-divider direction="vertical"
+                  class="left"></el-divider> -->
 
       <el-card shadow="never"
                class="box-card left"
@@ -101,7 +107,7 @@
                v-show="showSelectedSearch">
             <i class="el-icon-search"
                @click="changeSelectedSearch"></i>
-            <i class="el-icon-delete"
+            <i class="el-icon-close"
                @click="selectedListDelete"></i>
           </div>
           <div class="right"
@@ -122,9 +128,9 @@
              v-show="selectedSearchResult"
              v-for="(searchItem,searchIndex) in selectedSearchResultList"
              :key="searchIndex">
-          <span class="selected-name">{{searchItem.name}}</span>
-          <span class="selected-nickName">{{searchItem.nickName}}</span>
-          <i class="el-icon-delete"
+          <span class="selected-name">{{searchItem.realName}}</span>
+          <span class="selected-nickName">{{searchItem.numb}}</span>
+          <i class="el-icon-close"
              @click="searchstuDelete(searchIndex,searchItem)"></i>
         </div>
 
@@ -132,9 +138,9 @@
              v-for="(item,index) in selectedList"
              :key="index">
           <div v-show="selectedStudentsList">
-            <span class="selected-name">{{item.name}}</span>
-            <span class="selected-nickName">{{item.nickName}}</span>
-            <i class="el-icon-delete"
+            <span class="selected-name">{{item.realName}}</span>
+            <span class="selected-nickName">{{item.numb}}</span>
+            <i class="el-icon-close"
                @click="stuDelete(index)"></i>
           </div>
         </div>
@@ -143,7 +149,8 @@
     <el-row class="handleBtn">
       <el-button type="primary"
                  @click="submit">提交</el-button>
-      <el-button type="danger">取消</el-button>
+      <el-button type="danger"
+                 @click="cancel">取消</el-button>
     </el-row>
   </div>
 </template>
@@ -168,20 +175,44 @@ export default {
       classLists: [], // 班级列表
       groupLists: [], // 小组列表
       inputState: false, // 左侧输入框是否获得焦点
-      selectedSearchResultList: []// 右侧搜索结果列表
+      selectedSearchResultList: [], // 右侧搜索结果列表
+      testId: 54797,
+      searchResultLists: []
     }
   },
   components: {
     Searchlist// 左侧搜索子组件
   },
   mounted () {
+    // 获取localStorage中的testId
+    if (localStorage.getItem('testId')) {
+      this.testId = localStorage.getItem('testId')
+    }
+
     // 加载班级和小组列表
-    this.$http.post('/posts/tableData').then(res => {
-      this.classLists = res.data.classLists
-      this.groupLists = res.data.groupLists
+    this.$http.get('/test/classList.do?testId=' + this.testId).then(res => {
+      this.classLists = res.data
+      for (var i = 0; i < res.data.length; i++) {
+        var arr = res.data
+        arr[i].selectingShow = false
+      }
+    })
+    this.$http.get('/test/groupList.do?testId=' + this.testId).then(res => {
+      this.groupLists = res.data
+      for (var i = 0; i < res.data.length; i++) {
+        let arr = res.data
+        arr[i].selectingShow = false
+      }
     })
   },
   methods: {
+    getSearchList () {
+      this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + this.selectingInput).then(res => {
+        this.searchResultLists = res.data.filter((val) => { // 过滤数组元素
+          return val.realname.includes(this.selectingInput) || val.numb.toString().includes(this.selectingInput) // 如果包含字符返回true
+        })
+      })
+    },
     // 左侧搜索子组件向父组件传值
     addSelectingSearch (e) {
       // e 是子组件传递过来的数据
@@ -189,22 +220,38 @@ export default {
       this.selectedList = this.unique(this.selectedList)
     },
     // 数组去重
+    // unique (arr) {
+    //   return Array.from(new Set(arr))
+    // },
+    // 对象数组去重
     unique (arr) {
-      return Array.from(new Set(arr))
+      const res = new Map()
+      return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
     },
     // 右侧搜索框显示
     changeSelectedSearch () {
+      this.selectedSearchResultList = []
       this.showSelectedSearch = !this.showSelectedSearch
       this.selectedStudentsList = !this.selectedStudentsList
     },
     // 班级图标展开与收起
-    changeSelectingShow (index) {
+    changeSelectingShow (index, item) {
+      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb).then(res => {
+        // this.classListsStu = res.data
+        this.$set(this.classLists[index], 'data', res.data)
+      })
+
       // 将状态改为显示列表，图标改变
       this.classLists[index].selectingShow = !this.classLists[index]
         .selectingShow
     },
     // 小组图标展开与收起
-    changeSelectedShow (index) {
+    changeSelectedShow (index, item) {
+      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id).then(res => {
+        // this.groupListsStu = res.data
+        this.$set(this.groupLists[index], 'data', res.data)
+      })
+
       // 将状态改为显示列表，图标改变
       this.groupLists[index].selectingShow = !this.groupLists[index]
         .selectingShow
@@ -228,13 +275,14 @@ export default {
         this.selectingStudentsList = true
         this.selectingSearchResult = !this.selectingStudentsList
       }
+      this.getSearchList()
     },
     //  右侧搜索输入
     searchSelectedList (value) {
       // value是Input的值
       if (value.trim()) {
         this.selectedSearchResultList = this.selectedList.filter((val) => { // 过滤数组元素
-          return val.name.includes(value) || val.nickName.toString().includes(value) // 如果包含字符返回true
+          return val.realname.includes(value) || val.numb.toString().includes(value) // 如果包含字符返回true
         })
       }
       this.selectedStudentsList = false
@@ -246,7 +294,19 @@ export default {
     },
     //  右侧选择学生中的全部删除
     selectedListDelete () {
-      this.selectedList = []
+      if (this.selectedList.length > 0) {
+        this.$confirm('此操作将删除全部已选学生, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.selectedList = []
+        }).catch(() => {
+
+        })
+      } else {
+        this.$message('您还未添加学生，请先添加')
+      }
     },
     //  右侧选择学生中的删除
     stuDelete (index) {
@@ -256,13 +316,15 @@ export default {
     searchstuDelete (index, item) {
       this.selectedSearchResultList.splice(index, 1)
       this.selectedList = this.selectedList.filter((val) => { // 过滤数组元素
-        return !(val.name.includes(item.name) || val.nickName.toString().includes(item.nickName.toString())) // 如果包含字符返回true
+        return !(val.realname.includes(item.realname) || val.numb.toString().includes(item.numb.toString())) // 如果包含字符返回true
       })
     },
     //  按班级添加
-    addFromClass (index) {
-      this.selectedList = this.selectedList.concat(this.classLists[index].data)
-      this.selectedList = this.unique(this.selectedList)
+    addFromClass (item) {
+      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb).then(res => {
+        this.selectedList = this.selectedList.concat(res.data)
+        this.selectedList = this.unique(this.selectedList)
+      })
     },
     // 点击学生添加
     addself (item) {
@@ -270,8 +332,9 @@ export default {
         let inArray = false
         for (var i = 0; i < this.selectedList.length; i++) {
           let theItem = this.selectedList[i]
-          if (item.name === theItem.name) {
+          if (item.realname === theItem.realname) {
             inArray = true
+            this.$message('该学生已添加')
             break
           }
         }
@@ -283,13 +346,37 @@ export default {
       }
     },
     // 按小组添加
-    addFromGroup (index) {
-      this.selectedList = this.selectedList.concat(this.groupLists[index].data)
-      this.selectedList = this.unique(this.selectedList)
+    addFromGroup (item) {
+      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id).then(res => {
+        this.selectedList = this.selectedList.concat(res.data)
+        this.selectedList = this.unique(this.selectedList)
+      })
     },
     // 提交
     submit () {
-      console.log('result: ', this.selectedList)
+      let param = new URLSearchParams()
+      let ids = []
+      for (var i = 0; i < this.selectedList.length; i++) {
+        var arr = this.selectedList
+        ids.push(arr[i].id)
+      }
+      param.append('testId', this.testId)
+      param.append('ids', ids)
+      console.log('ids=> ', ids)
+      this.$http.post('/test/testStudentSave.do', param).then(res => {
+        if (res.error) {
+          this.$alert(res.error, '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          })
+        } else {
+          window.open('../../../../test/testStudentList.do?testId=' + this.testId, '_self')
+        }
+      })
+    },
+    // 取消
+    cancel () {
+      window.open('../../../../test/testStudentList.do?testId=' + this.testId, '_self')
     }
   }
 }
@@ -332,7 +419,7 @@ export default {
 }
 .item-name {
   display: inline-block;
-  width: 80px;
+  width: 120px;
 }
 
 .box-card {
@@ -384,7 +471,7 @@ export default {
 }
 .selected-name {
   display: inline-block;
-  width: 80px;
+  width: 120px;
 }
 .selected-nickName {
   display: inline-block;

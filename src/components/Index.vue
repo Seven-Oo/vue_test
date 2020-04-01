@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- <publish></publish> -->
-    <!-- <studentlist></studentlist> -->
     <addstudent></addstudent>
   </div>
 </template>

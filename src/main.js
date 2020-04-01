@@ -9,10 +9,10 @@ import './assets/css/common.css'
 import store from './store/index.js'
 import Vuex from 'vuex'
 
-import mock from './mock/mock' // mock.js文件
+// import mock from './mock/mock' // mock.js文件
 import axios from 'axios' // axios http请求库
 
-axios.defaults.baseURL = 'http://mockjs.com/api' // 设置默认请求的url
+axios.defaults.baseURL = process.env.BASE_API // 设置默认请求的url
 Vue.prototype.$http = axios
 
 Vue.use(ElementUI)
