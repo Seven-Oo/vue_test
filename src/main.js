@@ -13,6 +13,7 @@ import Vuex from 'vuex'
 import axios from 'axios' // axios http请求库
 
 axios.defaults.baseURL = process.env.BASE_API // 设置默认请求的url
+
 Vue.prototype.$http = axios
 
 Vue.use(ElementUI)

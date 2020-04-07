@@ -6,7 +6,7 @@
       <div @click="transmit(item)">
         <span class="selected-name">{{item.realname}}</span>
         <span class="selected-nickName">{{item.numb}}</span>
-        <span>{{item.class}}</span>
+        <span>{{item.className}}</span>
       </div>
     </div>
   </div>

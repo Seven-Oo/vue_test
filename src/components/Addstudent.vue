@@ -37,10 +37,10 @@
                   <div class="left"
                        @click="changeSelectingShow(index1, item1)">
                     <i v-show="item1.selectingShow"
-                       class="el-icon-caret-top content-title-topico">
-</template>
+                       class="el-icon-caret-top content-title-topico"></i>
+
                     <i v-show="!item1.selectingShow"
-                       class="el-icon-caret-bottom content-title-bottomico"></template>
+                       class="el-icon-caret-bottom content-title-bottomico"></i>
                     <span>{{item1.name}}</span>
                   </div>
                   <i class="el-icon-circle-plus-outline right content-title-addico"
@@ -219,10 +219,6 @@ export default {
       this.selectedList = this.selectedList.concat([e])
       this.selectedList = this.unique(this.selectedList)
     },
-    // 数组去重
-    // unique (arr) {
-    //   return Array.from(new Set(arr))
-    // },
     // 对象数组去重
     unique (arr) {
       const res = new Map()
@@ -237,7 +233,6 @@ export default {
     // 班级图标展开与收起
     changeSelectingShow (index, item) {
       this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb).then(res => {
-        // this.classListsStu = res.data
         this.$set(this.classLists[index], 'data', res.data)
       })
 
@@ -248,7 +243,6 @@ export default {
     // 小组图标展开与收起
     changeSelectedShow (index, item) {
       this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id).then(res => {
-        // this.groupListsStu = res.data
         this.$set(this.groupLists[index], 'data', res.data)
       })
 
