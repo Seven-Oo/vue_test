@@ -8,6 +8,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 import './assets/css/common.css'
 import store from './store/index.js'
 import Vuex from 'vuex'
+import 'babel-polyfill'
+import 'url-search-params-polyfill'
 
 // import mock from './mock/mock' // mock.js文件
 import axios from 'axios' // axios http请求库

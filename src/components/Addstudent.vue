@@ -30,69 +30,74 @@
           <el-tabs v-model="activeName">
             <el-tab-pane label="按班级添加"
                          name="first">
-              <div class="classWrapper"
-                   v-for="(item1, index1) in classLists"
-                   :key="index1">
-                <div class="clearfix content-title">
-                  <div class="left"
-                       @click="changeSelectingShow(index1, item1)">
-                    <i v-show="item1.selectingShow"
-                       class="el-icon-caret-top content-title-topico"></i>
+              <div style="height:274px;">
+                <el-scrollbar style="height:100%">
+                  <div class="clearfix classWrapper"
+                       v-for="(item1, index1) in classLists"
+                       :key="index1">
+                    <div class="clearfix content-title">
+                      <div class="left"
+                           @click="changeSelectingShow(index1, item1)">
+                        <i v-show="item1.selectingShow"
+                           class="el-icon-caret-top content-title-topico"></i>
 
-                    <i v-show="!item1.selectingShow"
-                       class="el-icon-caret-bottom content-title-bottomico"></i>
-                    <span>{{item1.name}}</span>
+                        <i v-show="!item1.selectingShow"
+                           class="el-icon-caret-bottom content-title-bottomico"></i>
+                        <span>{{item1.name}}</span>
+                      </div>
+                      <i class="el-icon-circle-plus-outline right content-title-addico"
+                         @click="addFromClass(item1)"></i>
+                    </div>
+                    <div v-for="(item2, index2) in item1.data"
+                         :key="index2"
+                         class="text items">
+                      <div v-show="item1.selectingShow"
+                           class="item"
+                           @click="addself(item2)">
+                        <span class="item-name">{{item2.realName}}</span>
+                        <span class="item-numb">{{item2.numb}}</span>
+                      </div>
+                    </div>
                   </div>
-                  <i class="el-icon-circle-plus-outline right content-title-addico"
-                     @click="addFromClass(item1)"></i>
-                </div>
-                <div v-for="(item2, index2) in item1.data"
-                     :key="index2"
-                     class="text items">
-                  <div v-show="item1.selectingShow"
-                       class="item"
-                       @click="addself(item2)">
-                    <span class="item-name">{{item2.realName}}</span>
-                    <span>{{item2.numb}}</span>
-                  </div>
-                </div>
+                </el-scrollbar>
               </div>
             </el-tab-pane>
             <el-tab-pane label="按小组添加"
                          name="second">
-              <div class="groupWrapper"
-                   v-for="(groupItem, groupIndex) in groupLists"
-                   :key="groupIndex">
-                <div class="clearfix content-title">
-                  <div class="left"
-                       @click="changeSelectedShow(groupIndex,groupItem)">
-                    <i v-show="groupItem.selectingShow"
-                       class="el-icon-caret-top content-title-topico"></i>
-                    <i v-show="!groupItem.selectingShow"
-                       class="el-icon-caret-bottom content-title-bottomico"></i>
-                    <span>{{groupItem.name}}</span>
+              <div style="height:274px;">
+                <el-scrollbar style="height:100%">
+                  <div class="groupWrapper clearfix"
+                       v-for="(groupItem, groupIndex) in groupLists"
+                       :key="groupIndex">
+                    <div class="clearfix content-title">
+                      <div class="left"
+                           @click="changeSelectedShow(groupIndex,groupItem)">
+                        <i v-show="groupItem.selectingShow"
+                           class="el-icon-caret-top content-title-topico"></i>
+                        <i v-show="!groupItem.selectingShow"
+                           class="el-icon-caret-bottom content-title-bottomico"></i>
+                        <span>{{groupItem.name}}</span>
+                      </div>
+                      <i class="el-icon-circle-plus-outline right content-title-addico"
+                         @click="addFromGroup(groupItem)"></i>
+                    </div>
+                    <div v-for="(stuItem, stuIndex) in groupItem.data"
+                         :key="stuIndex"
+                         class="text items">
+                      <div v-show="groupItem.selectingShow"
+                           class="item"
+                           @click="addself(stuItem)">
+                        <span class="item-name">{{stuItem.realName}}</span>
+                        <span class="item-numb">{{stuItem.numb}}</span>
+                      </div>
+                    </div>
                   </div>
-                  <i class="el-icon-circle-plus-outline right content-title-addico"
-                     @click="addFromGroup(groupItem)"></i>
-                </div>
-                <div v-for="(stuItem, stuIndex) in groupItem.data"
-                     :key="stuIndex"
-                     class="text items">
-                  <div v-show="groupItem.selectingShow"
-                       class="item"
-                       @click="addself(stuItem)">
-                    <span class="item-name">{{stuItem.realName}}</span>
-                    <span>{{stuItem.numb}}</span>
-                  </div>
-                </div>
+                </el-scrollbar>
               </div>
             </el-tab-pane>
           </el-tabs>
         </div>
       </el-card>
-
-      <!-- <el-divider direction="vertical"
-                  class="left"></el-divider> -->
 
       <el-card shadow="never"
                class="box-card left"
@@ -107,8 +112,8 @@
                v-show="showSelectedSearch">
             <i class="el-icon-search"
                @click="changeSelectedSearch"></i>
-            <i class="el-icon-close"
-               @click="selectedListDelete"></i>
+            <i class="el-icon-delete"
+               @click="checkSelectedList"></i>
           </div>
           <div class="right"
                v-show="!showSelectedSearch">
@@ -123,35 +128,64 @@
                   clearable
                   @clear="clearSelectedSearch"
                   @input="searchSelectedList($event)"></el-input>
-
-        <div class="selectedList"
-             v-show="selectedSearchResult"
-             v-for="(searchItem,searchIndex) in selectedSearchResultList"
-             :key="searchIndex">
-          <span class="selected-name">{{searchItem.realName}}</span>
-          <span class="selected-nickName">{{searchItem.numb}}</span>
-          <i class="el-icon-close"
-             @click="searchstuDelete(searchIndex,searchItem)"></i>
+        <div v-show="selectedSearchResult">
+          <div style="height:330px;"
+               ref="selectedSearchDiv">
+            <el-scrollbar style="height:100%">
+              <div class="selectedList"
+                   v-for="(searchItem,searchIndex) in selectedSearchResultList"
+                   :key="searchIndex">
+                <div class="selectedItem">
+                  <span class="selected-name">{{searchItem.realName}}</span>
+                  <span class="selected-nickName">{{searchItem.numb}}</span>
+                  <i class="el-icon-close"
+                     @click="searchstuDelete(searchIndex,searchItem)"></i>
+                </div>
+              </div>
+            </el-scrollbar>
+          </div>
         </div>
 
-        <div class="selectedList"
-             v-for="(item,index) in selectedList"
-             :key="index">
-          <div v-show="selectedStudentsList">
-            <span class="selected-name">{{item.realName}}</span>
-            <span class="selected-nickName">{{item.numb}}</span>
-            <i class="el-icon-close"
-               @click="stuDelete(index)"></i>
-          </div>
+        <div style="height:400px;">
+          <el-scrollbar style="height:100%">
+            <div class="selectedList"
+                 v-for="(item,index) in selectedList"
+                 :key="index">
+              <div v-show="selectedStudentsList"
+                   class="selectedItem">
+                <span class="selected-name">{{item.realName}}</span>
+                <span class="selected-nickName">{{item.numb}}</span>
+                <i class="el-icon-close"
+                   @click="stuDelete(index)"></i>
+              </div>
+            </div>
+          </el-scrollbar>
         </div>
       </el-card>
     </div>
+
     <el-row class="handleBtn">
       <el-button type="primary"
                  @click="submit">提交</el-button>
       <el-button type="danger"
                  @click="cancel">取消</el-button>
     </el-row>
+
+    <el-dialog title="提示"
+               :visible.sync="delDialogVisible"
+               width="30%"
+               custom-class="delAllDialog">
+      <span>
+        <i class="el-icon-info"></i>
+        此操作将删除全部已选学生, 是否继续?
+      </span>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button type="primary"
+                   @click="selectedListDelete">确 定</el-button>
+        <el-button @click="delDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -177,7 +211,9 @@ export default {
       inputState: false, // 左侧输入框是否获得焦点
       selectedSearchResultList: [], // 右侧搜索结果列表
       testId: 54797,
-      searchResultLists: []
+      searchResultLists: [],
+      searchResultListsStash: [],
+      delDialogVisible: false
     }
   },
   components: {
@@ -189,35 +225,68 @@ export default {
       this.testId = localStorage.getItem('testId')
     }
 
-    // 加载班级和小组列表
-    this.$http.get('/test/classList.do?testId=' + this.testId).then(res => {
-      this.classLists = res.data
-      for (var i = 0; i < res.data.length; i++) {
-        var arr = res.data
-        arr[i].selectingShow = false
-      }
-    })
-    this.$http.get('/test/groupList.do?testId=' + this.testId).then(res => {
-      this.groupLists = res.data
-      for (var i = 0; i < res.data.length; i++) {
-        let arr = res.data
-        arr[i].selectingShow = false
-      }
-    })
+    this.getClassList()
+    this.getGroupList()
   },
   methods: {
-    getSearchList () {
-      this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + this.selectingInput).then(res => {
-        this.searchResultLists = res.data.filter((val) => { // 过滤数组元素
-          return val.realname.includes(this.selectingInput) || val.numb.toString().includes(this.selectingInput) // 如果包含字符返回true
-        })
+    getClassList () {
+      // 加载班级列表
+      this.$http.get('/test/classList.do?testId=' + this.testId).then(res => {
+        this.classLists = res.data
+        for (var i = 0; i < res.data.length; i++) {
+          var arr = res.data
+          arr[i].selectingShow = false
+        }
       })
+    },
+    getGroupList () {
+      // 加载小组列表
+      this.$http.get('/test/groupList.do?testId=' + this.testId).then(res => {
+        this.groupLists = res.data
+        for (var i = 0; i < res.data.length; i++) {
+          let arr = res.data
+          arr[i].selectingShow = false
+        }
+      })
+    },
+    getSearchList (value) {
+      if (this.searchResultListsStash.length > 0) {
+        // value是Input的值
+        if (value.trim()) {
+          this.searchResultLists = this.searchResultListsStash.filter((val) => { // 过滤数组元素
+            return val.realname.includes(value) || val.numb.toString().includes(value) // 如果包含字符返回true
+          })
+        }
+      } else {
+        this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + '').then(res => {
+          this.searchResultListsStash = res.data
+          this.searchResultLists = res.data.filter((val) => { // 过滤数组元素
+            return val.realname.includes(this.selectingInput) || val.numb.toString().includes(this.selectingInput) // 如果包含字符返回true
+          })
+        })
+      }
     },
     // 左侧搜索子组件向父组件传值
     addSelectingSearch (e) {
       // e 是子组件传递过来的数据
-      this.selectedList = this.selectedList.concat([e])
-      this.selectedList = this.unique(this.selectedList)
+      // this.selectedList = this.selectedList.concat([e])
+      // this.selectedList = this.unique(this.selectedList)
+      if (this.selectedList.length > 0) {
+        let inArray = false
+        for (var i = 0; i < this.selectedList.length; i++) {
+          let theItem = this.selectedList[i]
+          if (e.realname === theItem.realname) {
+            inArray = true
+            this.$message('该学生已添加')
+            break
+          }
+        }
+        if (!inArray) {
+          this.selectedList = this.selectedList.concat([e])
+        }
+      } else {
+        this.selectedList = this.selectedList.concat([e])
+      }
     },
     // 对象数组去重
     unique (arr) {
@@ -229,6 +298,7 @@ export default {
       this.selectedSearchResultList = []
       this.showSelectedSearch = !this.showSelectedSearch
       this.selectedStudentsList = !this.selectedStudentsList
+      this.selectedSearchResult = false
     },
     // 班级图标展开与收起
     changeSelectingShow (index, item) {
@@ -269,7 +339,7 @@ export default {
         this.selectingStudentsList = true
         this.selectingSearchResult = !this.selectingStudentsList
       }
-      this.getSearchList()
+      this.getSearchList(value)
     },
     //  右侧搜索输入
     searchSelectedList (value) {
@@ -286,18 +356,28 @@ export default {
     clearSelectedSearch () {
       this.selectedSearchResultList = []
     },
-    //  右侧选择学生中的全部删除
+    // 检查是否有选中的学生
+    checkSelectedList () {
+      if (this.selectedList.length > 0) {
+        this.delDialogVisible = true
+      } else {
+        this.$message('您还未添加学生，请先添加')
+      }
+    },
+    // 自定义的弹出框关闭前调用
+    // delHandleClose (done) {
+    //   this.$confirm('确认删除？')
+    //     .then(_ => {
+    //       done()
+    //       this.selectedList = []
+    //     })
+    //     .catch(_ => { })
+    // },
+    // 右侧选择学生中的全部删除
     selectedListDelete () {
       if (this.selectedList.length > 0) {
-        this.$confirm('此操作将删除全部已选学生, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.selectedList = []
-        }).catch(() => {
-
-        })
+        this.selectedList = []
+        this.delDialogVisible = false
       } else {
         this.$message('您还未添加学生，请先添加')
       }
@@ -364,7 +444,23 @@ export default {
             type: 'warning'
           })
         } else {
-          window.open('../../../../test/testStudentList.do?testId=' + this.testId, '_self')
+          var userAgent = navigator.userAgent // 取得浏览器的userAgent字符串
+
+          var isIE = userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 // 判断是否IE<11浏览器
+
+          if (isIE) {
+            // 如果为IE 构造一个虚拟的a标签 以便于跳转到对应的URL
+            console.log('IE')
+            var gotolink = document.createElement('a')
+            gotolink.href = '../../../../test/testStudentList.do?testId=' + this.testId
+            gotolink.setAttribute('target', '_self')
+            document.body.appendChild(gotolink)
+            gotolink.click()
+          } else {
+            window.open('../../../../test/testStudentList.do?testId=' + this.testId, '_self')
+          }
+
+          // window.open('../../../../test/testStudentList.do?testId=' + this.testId, '_self')
         }
       })
     },
@@ -384,8 +480,9 @@ export default {
   color: #ff5b00;
 }
 .box-wrapper {
-  width: 851px;
+  /* width: 1051px; 100%宽度 */
   border: 1px solid #ebeef5;
+  margin: 0 20px;
 }
 .boxcard-title h3 {
   display: inline-block;
@@ -408,16 +505,20 @@ export default {
   padding-left: 50px;
   margin-bottom: 10px;
 }
+.items:hover {
+  color: #409eff;
+}
 .item {
   cursor: pointer;
 }
-.item-name {
+.item-name,
+.item-numb {
   display: inline-block;
-  width: 120px;
+  width: 48%;
 }
-
 .box-card {
-  width: 410px;
+  /* width: 510px; */
+  width: 48%; /*避免宽度过高掉落下一行*/
   border: none;
 }
 .el-card__header {
@@ -432,9 +533,13 @@ export default {
   margin: 10px 0 20px 0;
 }
 .handleBtn {
-  width: 853px;
+  width: 98%;
   text-align: center;
   margin: 30px 0;
+}
+.classWrapper,
+.groupWrapper {
+  padding-right: 20px;
 }
 .content-title {
   height: 30px;
@@ -463,13 +568,13 @@ export default {
   font-size: 14px;
   cursor: pointer;
 }
-.selected-name {
-  display: inline-block;
-  width: 120px;
+.selectedItem:hover {
+  color: #409eff;
 }
+.selected-name,
 .selected-nickName {
   display: inline-block;
-  width: 100px;
+  width: 45%;
 }
 .exitSearch {
   color: #3f51b5;

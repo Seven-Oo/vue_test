@@ -1,14 +1,17 @@
 <template>
-  <div>
-    <div class="selectedList"
-         v-for="(item,index) in searchResultLists"
-         :key="index">
-      <div @click="transmit(item)">
-        <span class="selected-name">{{item.realname}}</span>
-        <span class="selected-nickName">{{item.numb}}</span>
-        <span>{{item.className}}</span>
+  <div style="height:330px;">
+    <el-scrollbar style="height:100%">
+      <div class="selectedList"
+           v-for="(item,index) in searchResultLists"
+           :key="index">
+        <div class="selectedItem"
+             @click="transmit(item)">
+          <span class="selected-name">{{item.realname}}</span>
+          <span class="selected-nickName">{{item.numb}}</span>
+          <span class="selected-className">{{item.className}}</span>
+        </div>
       </div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -39,14 +42,16 @@ export default {
   font-size: 14px;
   cursor: pointer;
 }
-.selected-name {
-  display: inline-block;
-  width: 120px;
+.selectedItem:hover {
+  color: #409eff;
 }
-.selected-nickName {
+.selected-name,
+.selected-nickName,
+.selected-className {
   display: inline-block;
-  width: 100px;
+  width: 30%;
 }
+
 .exitSearch {
   color: #3f51b5;
   cursor: pointer;
