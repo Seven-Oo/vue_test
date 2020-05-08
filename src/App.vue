@@ -34,4 +34,8 @@ body {
   overflow-x: hidden !important;
   margin-right: -18px !important;
 }
+.card-rightBox .el-card__body {
+  height: 400px;
+  overflow-y: hidden;
+}
 </style>

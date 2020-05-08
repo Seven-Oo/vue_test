@@ -100,7 +100,7 @@
       </el-card>
 
       <el-card shadow="never"
-               class="box-card left"
+               class="box-card left card-rightBox"
                style="margin-left: 15px;">
         <div slot="header"
              class="clearfix boxcard-title">
@@ -129,8 +129,7 @@
                   @clear="clearSelectedSearch"
                   @input="searchSelectedList($event)"></el-input>
         <div v-show="selectedSearchResult">
-          <div style="height:330px;"
-               ref="selectedSearchDiv">
+          <div style="height:330px;">
             <el-scrollbar style="height:100%">
               <div class="selectedList"
                    v-for="(searchItem,searchIndex) in selectedSearchResultList"
@@ -275,9 +274,12 @@ export default {
         let inArray = false
         for (var i = 0; i < this.selectedList.length; i++) {
           let theItem = this.selectedList[i]
-          if (e.realname === theItem.realname) {
+          if (e.numb === theItem.numb) {
             inArray = true
-            this.$message('该学生已添加')
+            this.$message({
+              duration: 1000,
+              message: '该学生【' + e.realname + '】已添加'
+            })
             break
           }
         }
@@ -299,6 +301,7 @@ export default {
       this.showSelectedSearch = !this.showSelectedSearch
       this.selectedStudentsList = !this.selectedStudentsList
       this.selectedSearchResult = false
+      this.selectedInput = ''// 退出时清空input的value
     },
     // 班级图标展开与收起
     changeSelectingShow (index, item) {
@@ -364,15 +367,6 @@ export default {
         this.$message('您还未添加学生，请先添加')
       }
     },
-    // 自定义的弹出框关闭前调用
-    // delHandleClose (done) {
-    //   this.$confirm('确认删除？')
-    //     .then(_ => {
-    //       done()
-    //       this.selectedList = []
-    //     })
-    //     .catch(_ => { })
-    // },
     // 右侧选择学生中的全部删除
     selectedListDelete () {
       if (this.selectedList.length > 0) {
@@ -390,7 +384,7 @@ export default {
     searchstuDelete (index, item) {
       this.selectedSearchResultList.splice(index, 1)
       this.selectedList = this.selectedList.filter((val) => { // 过滤数组元素
-        return !(val.realname.includes(item.realname) || val.numb.toString().includes(item.numb.toString())) // 如果包含字符返回true
+        return !(val.numb.toString().includes(item.numb.toString())) // 如果包含字符返回true
       })
     },
     //  按班级添加
@@ -406,9 +400,12 @@ export default {
         let inArray = false
         for (var i = 0; i < this.selectedList.length; i++) {
           let theItem = this.selectedList[i]
-          if (item.realname === theItem.realname) {
+          if (item.numb === theItem.numb) {
             inArray = true
-            this.$message('该学生已添加')
+            this.$message({
+              duration: 1000,
+              message: '该学生【' + item.realname + '】已添加'
+            })
             break
           }
         }
