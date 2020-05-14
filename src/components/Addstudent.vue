@@ -12,7 +12,7 @@
           <h3>可选择参与人：</h3>
         </div>
         <el-input class="selectingInput"
-                  placeholder="输入学生姓名或学号"
+                  placeholder="输入学生姓名或用户名"
                   v-model="selectingInput"
                   clearable
                   @clear="clearSelectingSearch"
@@ -55,7 +55,7 @@
                            class="item"
                            @click="addself(item2)">
                         <span class="item-name">{{item2.realName}}</span>
-                        <span class="item-numb">{{item2.numb}}</span>
+                        <span class="item-numb">{{item2.userName}}</span>
                       </div>
                     </div>
                   </div>
@@ -88,7 +88,7 @@
                            class="item"
                            @click="addself(stuItem)">
                         <span class="item-name">{{stuItem.realName}}</span>
-                        <span class="item-numb">{{stuItem.numb}}</span>
+                        <span class="item-numb">{{stuItem.userName}}</span>
                       </div>
                     </div>
                   </div>
@@ -123,7 +123,7 @@
         </div>
         <el-input class="selectingInput"
                   v-show="!showSelectedSearch"
-                  placeholder="输入学生姓名或学号"
+                  placeholder="输入学生姓名或用户名"
                   v-model="selectedInput"
                   clearable
                   @clear="clearSelectedSearch"
@@ -136,7 +136,7 @@
                    :key="searchIndex">
                 <div class="selectedItem">
                   <span class="selected-name">{{searchItem.realName}}</span>
-                  <span class="selected-nickName">{{searchItem.numb}}</span>
+                  <span class="selected-nickName">{{searchItem.userName }}</span>
                   <i class="el-icon-close"
                      @click="searchstuDelete(searchIndex,searchItem)"></i>
                 </div>
@@ -153,7 +153,7 @@
               <div v-show="selectedStudentsList"
                    class="selectedItem">
                 <span class="selected-name">{{item.realName}}</span>
-                <span class="selected-nickName">{{item.numb}}</span>
+                <span class="selected-nickName">{{item.userName }}</span>
                 <i class="el-icon-close"
                    @click="stuDelete(index)"></i>
               </div>
@@ -212,7 +212,7 @@ export default {
       testId: 54797,
       searchResultLists: [],
       searchResultListsStash: [],
-      delDialogVisible: false
+      delDialogVisible: false // 自定义弹出框
     }
   },
   components: {
@@ -253,14 +253,14 @@ export default {
         // value是Input的值
         if (value.trim()) {
           this.searchResultLists = this.searchResultListsStash.filter((val) => { // 过滤数组元素
-            return val.realname.includes(value) || val.numb.toString().includes(value) // 如果包含字符返回true
+            return val.realName.includes(value) || val.userName.toString().includes(value) // 如果包含字符返回true
           })
         }
       } else {
-        this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + '').then(res => {
+        this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + '' + '&t=' + Math.random()).then(res => {
           this.searchResultListsStash = res.data
           this.searchResultLists = res.data.filter((val) => { // 过滤数组元素
-            return val.realname.includes(this.selectingInput) || val.numb.toString().includes(this.selectingInput) // 如果包含字符返回true
+            return val.realName.includes(this.selectingInput) || val.userName.toString().includes(this.selectingInput) // 如果包含字符返回true
           })
         })
       }
@@ -274,11 +274,11 @@ export default {
         let inArray = false
         for (var i = 0; i < this.selectedList.length; i++) {
           let theItem = this.selectedList[i]
-          if (e.numb === theItem.numb) {
+          if (e.userName === theItem.userName) {
             inArray = true
             this.$message({
               duration: 1000,
-              message: '该学生【' + e.realname + '】已添加'
+              message: '该学生【' + e.realName + '】已添加'
             })
             break
           }
@@ -305,23 +305,36 @@ export default {
     },
     // 班级图标展开与收起
     changeSelectingShow (index, item) {
-      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb).then(res => {
-        this.$set(this.classLists[index], 'data', res.data)
+      // 请求添加随机字符以保证IE不缓存
+      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb + '&t=' + Math.random()).then(res => {
+        if (res.data.includes('你的访问过于频繁,请稍后再试')) {
+          this.$message({
+            duration: 1000,
+            message: '你的访问过于频繁,请稍后再试'
+          })
+        } else {
+          this.$set(this.classLists[index], 'data', res.data)
+          // 将状态改为显示列表，图标改变
+          this.classLists[index].selectingShow = !this.classLists[index]
+            .selectingShow
+        }
       })
-
-      // 将状态改为显示列表，图标改变
-      this.classLists[index].selectingShow = !this.classLists[index]
-        .selectingShow
     },
     // 小组图标展开与收起
     changeSelectedShow (index, item) {
-      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id).then(res => {
-        this.$set(this.groupLists[index], 'data', res.data)
+      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id + '&t=' + Math.random()).then(res => {
+        if (res.data.includes('你的访问过于频繁,请稍后再试')) {
+          this.$message({
+            duration: 1000,
+            message: '你的访问过于频繁,请稍后再试'
+          })
+        } else {
+          this.$set(this.groupLists[index], 'data', res.data)
+          // 将状态改为显示列表，图标改变
+          this.groupLists[index].selectingShow = !this.groupLists[index]
+            .selectingShow
+        }
       })
-
-      // 将状态改为显示列表，图标改变
-      this.groupLists[index].selectingShow = !this.groupLists[index]
-        .selectingShow
     },
     //  左侧搜索获取焦点操作
     changeInputState () {
@@ -349,7 +362,7 @@ export default {
       // value是Input的值
       if (value.trim()) {
         this.selectedSearchResultList = this.selectedList.filter((val) => { // 过滤数组元素
-          return val.realname.includes(value) || val.numb.toString().includes(value) // 如果包含字符返回true
+          return val.realName.includes(value) || val.userName.toString().includes(value) // 如果包含字符返回true
         })
       }
       this.selectedStudentsList = false
@@ -384,12 +397,12 @@ export default {
     searchstuDelete (index, item) {
       this.selectedSearchResultList.splice(index, 1)
       this.selectedList = this.selectedList.filter((val) => { // 过滤数组元素
-        return !(val.numb.toString().includes(item.numb.toString())) // 如果包含字符返回true
+        return !(val.userName.toString().includes(item.userName.toString())) // 如果包含字符返回true
       })
     },
     //  按班级添加
     addFromClass (item) {
-      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb).then(res => {
+      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb + '&t=' + Math.random()).then(res => {
         this.selectedList = this.selectedList.concat(res.data)
         this.selectedList = this.unique(this.selectedList)
       })
@@ -400,11 +413,11 @@ export default {
         let inArray = false
         for (var i = 0; i < this.selectedList.length; i++) {
           let theItem = this.selectedList[i]
-          if (item.numb === theItem.numb) {
+          if (item.userName === theItem.userName) {
             inArray = true
             this.$message({
               duration: 1000,
-              message: '该学生【' + item.realname + '】已添加'
+              message: '该学生【' + item.realName + '】已添加'
             })
             break
           }
@@ -418,9 +431,16 @@ export default {
     },
     // 按小组添加
     addFromGroup (item) {
-      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id).then(res => {
-        this.selectedList = this.selectedList.concat(res.data)
-        this.selectedList = this.unique(this.selectedList)
+      this.$http.get('/test/groupStudentList.do?testId=' + this.testId + '&groupId=' + item.id + '&t=' + Math.random()).then(res => {
+        if (res.data.length > 0) {
+          this.selectedList = this.selectedList.concat(res.data)
+          this.selectedList = this.unique(this.selectedList)
+        } else {
+          this.$message({
+            duration: 1000,
+            message: '该小组学生数为0，无法添加！'
+          })
+        }
       })
     },
     // 提交
@@ -433,7 +453,6 @@ export default {
       }
       param.append('testId', this.testId)
       param.append('ids', ids)
-      console.log('ids=> ', ids)
       this.$http.post('/test/testStudentSave.do', param).then(res => {
         if (res.error) {
           this.$alert(res.error, '提示', {
@@ -441,13 +460,10 @@ export default {
             type: 'warning'
           })
         } else {
-          var userAgent = navigator.userAgent // 取得浏览器的userAgent字符串
-
-          var isIE = userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 // 判断是否IE<11浏览器
+          var isIE = (!!window.ActiveXObject || 'ActiveXObject' in window)
 
           if (isIE) {
             // 如果为IE 构造一个虚拟的a标签 以便于跳转到对应的URL
-            console.log('IE')
             var gotolink = document.createElement('a')
             gotolink.href = '../../../../test/testStudentList.do?testId=' + this.testId
             gotolink.setAttribute('target', '_self')

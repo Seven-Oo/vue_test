@@ -6,9 +6,9 @@
            :key="index">
         <div class="selectedItem"
              @click="transmit(item)">
-          <span class="selected-name">{{item.realname}}</span>
-          <span class="selected-nickName">{{item.numb}}</span>
-          <span class="selected-className">{{item.className}}</span>
+          <span class="selected-name">{{item.realName}}</span>
+          <span class="selected-nickName">{{item.userName }}</span>
+          <span class="selected-className">{{item.classTitle}}</span>
         </div>
       </div>
     </el-scrollbar>
