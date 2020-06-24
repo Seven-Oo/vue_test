@@ -50,6 +50,10 @@ export default {
 .selected-className {
   display: inline-block;
   width: 30%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 22px;
 }
 
 .exitSearch {

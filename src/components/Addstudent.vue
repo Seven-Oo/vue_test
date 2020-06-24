@@ -255,6 +255,8 @@ export default {
           this.searchResultLists = this.searchResultListsStash.filter((val) => { // 过滤数组元素
             return val.realName.includes(value) || val.userName.toString().includes(value) // 如果包含字符返回true
           })
+        } else {
+          this.searchResultLists = this.searchResultListsStash
         }
       } else {
         this.$http.post('/test/courseStudentList.do?testId=' + this.testId + '&name=' + '' + '&t=' + Math.random()).then(res => {
@@ -364,6 +366,8 @@ export default {
         this.selectedSearchResultList = this.selectedList.filter((val) => { // 过滤数组元素
           return val.realName.includes(value) || val.userName.toString().includes(value) // 如果包含字符返回true
         })
+      } else {
+        this.selectedSearchResultList = this.selectedList
       }
       this.selectedStudentsList = false
       this.selectedSearchResult = !this.selectedStudentsList
@@ -528,6 +532,10 @@ export default {
 .item-numb {
   display: inline-block;
   width: 48%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 22px;
 }
 .box-card {
   /* width: 510px; */
@@ -588,6 +596,10 @@ export default {
 .selected-nickName {
   display: inline-block;
   width: 45%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 22px;
 }
 .exitSearch {
   color: #3f51b5;
