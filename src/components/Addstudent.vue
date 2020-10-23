@@ -308,19 +308,29 @@ export default {
     // 班级图标展开与收起
     changeSelectingShow (index, item) {
       // 请求添加随机字符以保证IE不缓存
-      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb + '&t=' + Math.random()).then(res => {
-        if (res.data.includes('你的访问过于频繁,请稍后再试')) {
-          this.$message({
-            duration: 1000,
-            message: '你的访问过于频繁,请稍后再试'
-          })
-        } else {
-          this.$set(this.classLists[index], 'data', res.data)
-          // 将状态改为显示列表，图标改变
-          this.classLists[index].selectingShow = !this.classLists[index]
-            .selectingShow
+      /* eslint-disable */
+      var formData = new FormData();
+        formData.append("testId", this.testId);
+        formData.append("classNumb", encodeURIComponent(item.numb));
+        formData.append("t", Math.random());
+        var config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
         }
-      })
+        this.$http.post('/test/classStudentList.do', formData, config).then(res => {
+            if (res.data.includes('你的访问过于频繁,请稍后再试')) {
+            this.$message({
+                duration: 1000,
+                message: '你的访问过于频繁,请稍后再试'
+            })
+            } else {
+            this.$set(this.classLists[index], 'data', res.data)
+            // 将状态改为显示列表，图标改变
+            this.classLists[index].selectingShow = !this.classLists[index]
+                .selectingShow
+            }
+        })
     },
     // 小组图标展开与收起
     changeSelectedShow (index, item) {
@@ -406,7 +416,17 @@ export default {
     },
     //  按班级添加
     addFromClass (item) {
-      this.$http.get('/test/classStudentList.do?testId=' + this.testId + '&classNumb=' + item.numb + '&t=' + Math.random()).then(res => {
+      /* eslint-disable */
+      var formData = new FormData();
+        formData.append("testId", this.testId);
+        formData.append("classNumb", encodeURIComponent(item.numb));
+        formData.append("t", Math.random());
+        var config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+        }
+      this.$http.post('/test/classStudentList.do', formData, config).then(res => {
         this.selectedList = this.selectedList.concat(res.data)
         this.selectedList = this.unique(this.selectedList)
       })
