@@ -12,7 +12,7 @@
           <h3>可选择参与人：</h3>
         </div>
         <el-input class="selectingInput"
-                  placeholder="输入学生姓名或用户名"
+                  placeholder="输入学员姓名或用户名"
                   v-model="selectingInput"
                   clearable
                   @clear="clearSelectingSearch"
@@ -123,7 +123,7 @@
         </div>
         <el-input class="selectingInput"
                   v-show="!showSelectedSearch"
-                  placeholder="输入学生姓名或用户名"
+                  placeholder="输入学员姓名或用户名"
                   v-model="selectedInput"
                   clearable
                   @clear="clearSelectedSearch"
@@ -176,7 +176,7 @@
                custom-class="delAllDialog">
       <span>
         <i class="el-icon-info"></i>
-        此操作将删除全部已选学生, 是否继续?
+        此操作将删除全部已选学员, 是否继续?
       </span>
       <span slot="footer"
             class="dialog-footer">
@@ -197,14 +197,14 @@ export default {
       selectingInput: '', // 左侧输入框的值
       selectedInput: '', // 右侧输入框的值
       activeName: 'first', // 班级和小组切换控制
-      selectedList: [], // 已选择的学生列表
+      selectedList: [], // 已选择的学员列表
       showSelectedSearch: true, // 右侧搜索框是否显示
       selectingStudentsList: true, // 左侧班级和小组是否显示
       selectingSearchResult: false, // 左侧搜索结果是否显示
       selectedStudentsList: true, // 右侧选中列表是否显示
       selectedSearchResult: false, // 右侧搜索结果是否显示
-      selectingShow: false, // 班级内学生列表是否显示
-      selectedShow: false, // 小组内学生列表是否显示
+      selectingShow: false, // 班级内学员列表是否显示
+      selectedShow: false, // 小组内学员列表是否显示
       classLists: [], // 班级列表
       groupLists: [], // 小组列表
       inputState: false, // 左侧输入框是否获得焦点
@@ -280,7 +280,7 @@ export default {
             inArray = true
             this.$message({
               duration: 1000,
-              message: '该学生【' + e.realName + '】已添加'
+              message: '该学员【' + e.realName + '】已添加'
             })
             break
           }
@@ -386,24 +386,24 @@ export default {
     clearSelectedSearch () {
       this.selectedSearchResultList = []
     },
-    // 检查是否有选中的学生
+    // 检查是否有选中的学员
     checkSelectedList () {
       if (this.selectedList.length > 0) {
         this.delDialogVisible = true
       } else {
-        this.$message('您还未添加学生，请先添加')
+        this.$message('您还未添加学员，请先添加')
       }
     },
-    // 右侧选择学生中的全部删除
+    // 右侧选择学员中的全部删除
     selectedListDelete () {
       if (this.selectedList.length > 0) {
         this.selectedList = []
         this.delDialogVisible = false
       } else {
-        this.$message('您还未添加学生，请先添加')
+        this.$message('您还未添加学员，请先添加')
       }
     },
-    //  右侧选择学生中的删除
+    //  右侧选择学员中的删除
     stuDelete (index) {
       this.selectedList.splice(index, 1)
     },
@@ -431,7 +431,7 @@ export default {
         this.selectedList = this.unique(this.selectedList)
       })
     },
-    // 点击学生添加
+    // 点击学员添加
     addself (item) {
       if (this.selectedList.length > 0) {
         let inArray = false
@@ -441,7 +441,7 @@ export default {
             inArray = true
             this.$message({
               duration: 1000,
-              message: '该学生【' + item.realName + '】已添加'
+              message: '该学员【' + item.realName + '】已添加'
             })
             break
           }
@@ -462,7 +462,7 @@ export default {
         } else {
           this.$message({
             duration: 1000,
-            message: '该小组学生数为0，无法添加！'
+            message: '该小组学员数为0，无法添加！'
           })
         }
       })

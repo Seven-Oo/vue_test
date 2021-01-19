@@ -1,15 +1,15 @@
 <template>
   <div>
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="添加学生：">
+      <el-form-item label="添加学员：">
         <el-button type="primary" @click="onAdd">添加</el-button>
       </el-form-item>
     </el-form>
 
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
       <el-form-item label="">
-        <el-form-item label="已添加学生：">
-          <el-input v-model="formInline.name" placeholder="请输入学生姓名或用户名"></el-input>
+        <el-form-item label="已添加学员：">
+          <el-input v-model="formInline.name" placeholder="请输入学员姓名或用户名"></el-input>
         </el-form-item>
         <el-select v-model="formInline.class" placeholder="请选择班级" style="margin-right:10px;">
           <el-option label="班级一" value="shanghai"></el-option>
@@ -61,7 +61,7 @@
       </el-table-column>
     </el-table>
     <div class="clearfix" style="margin-top: 20px">
-      <div class="left"><el-button>删除选中学生</el-button></div>
+      <div class="left"><el-button>删除选中学员</el-button></div>
       <div class="right">
         <el-pagination
         @size-change="handleSizeChange"
@@ -96,18 +96,7 @@ export default {
     })
   },
   methods: {
-    handleSizeChange (val) {
-      console.log(`每页 ${val} 条`)
-    },
-    handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
-    },
-    onSubmit () {
-      console.log(`提交`)
-    },
-    onAdd () {
-      console.log(`跳转添加页`)
-    }
+
   }
 }
 </script>

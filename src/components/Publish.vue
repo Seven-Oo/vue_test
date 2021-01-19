@@ -27,10 +27,10 @@ export default {
     return {
       options: [{
         value: 'all',
-        label: '全部学生'
+        label: '全部学员'
       }, {
         value: 'select',
-        label: '指定学生'
+        label: '指定学员'
       }],
       value: '',
       formInline: {
